@@ -13,7 +13,8 @@ const config: Config = {
 			colors: {
 				background: '#E5E8EC',
 				foreground: 'var(--foreground)',
-				homeback: '#5DC9A8'
+				homeback: '#5DC9A8',
+				light: 'rgba(0, 0, 0, 0.08)',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

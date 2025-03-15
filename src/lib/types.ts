@@ -3,7 +3,7 @@ export type TChild = {
 }
 
 export type Pet = {
-  id: number
+  id: string
   name: string
   imageUrl: string
   ownerName: string
