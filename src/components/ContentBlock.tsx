@@ -1,7 +1,11 @@
-import { TChild } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
-export default function ContentBlock({ children }: TChild) {
+type TContentBlock = {
+  children: React.ReactNode;
+  className?: string;
+}
+export default function ContentBlock({ children, className }: TContentBlock) {
   return (
-    <div className="bg-[#F7F8FA] shadow-sm rounded-md overflow-hidden h-full w-full">{children}</div>
+    <div className={cn("bg-[#F7F8FA] shadow-sm rounded-md overflow-hidden h-full w-full", className)}>{children}</div>
   )
 }
