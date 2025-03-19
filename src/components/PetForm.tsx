@@ -1,10 +1,11 @@
 "use client";
 import { usePetContext } from "@/lib/hooks";
-import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
-import { addPet } from "@/actions/actions";
+import { addPet, editPet } from "@/actions/actions";
+import PetFormBtn from "./PetFormBtn";
+import { toast } from "sonner";
 
 type PetFormProps = {
   type: "edit" | "add";
@@ -15,7 +16,22 @@ export default function PetForm({ type, onFormSubmission }: PetFormProps) {
   const { selectedPet } = usePetContext();
 
   return (
-    <form action={addPet} className="flex flex-col">
+    <form action={async (formData) => {
+      if (type === "edit") {
+        const error = await editPet(selectedPet?.id, formData);
+        if (error) {
+          toast.warning(error.message);
+          return;
+        }
+      } else if (type === "add") {
+        const error = await addPet(formData);
+        if (error) {
+          toast.warning(error.message);
+          return;
+        }
+      }
+      onFormSubmission();
+    }} className="flex flex-col">
       <div className="space-y-3">
         <div className="space-y-1">
           <Label htmlFor="name">Name</Label>
@@ -38,9 +54,7 @@ export default function PetForm({ type, onFormSubmission }: PetFormProps) {
           <Textarea id="notes" name="notes" rows={3} required defaultValue={type === "edit" ? selectedPet?.notes : ""} />
         </div>
       </div>
-      <Button type="submit" className="mt-5 self-end">{
-        type === "add" ? "Add a new pet" : "Edit  pet"
-      }</Button>
+      <PetFormBtn type={type} />
     </form>
   )
 }
