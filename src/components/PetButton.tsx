@@ -8,12 +8,13 @@ import PetForm from './PetForm';
 type PetButtonProps = {
   actionType: "edit" | "checkout" | "add";
   onClick?: () => void;
+  disabled?: boolean;
 }
-export default function PetButton({ actionType, onClick }: PetButtonProps) {
+export default function PetButton({ actionType, onClick, disabled }: PetButtonProps) {
   const [isFormOpen, setIsFormOpen] = useState(false);
   if (actionType === "checkout") {
     return (
-      <Button variant="secondary" onClick={onClick}>Checkout</Button>
+      <Button variant="secondary" disabled={disabled} onClick={onClick}>Checkout</Button>
     )
   }
 

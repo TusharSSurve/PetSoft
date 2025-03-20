@@ -18,7 +18,9 @@ export default function PetDetails() {
               <h2 className="text-3xl font-semibold leading-7 ml-5">{selectedPet?.name}</h2>
               <div className="ml-auto space-x-2">
                 <PetButton actionType="edit" />
-                <PetButton actionType="checkout" onClick={() => { handleCheckout(selectedPet.id) }} />
+                <PetButton actionType="checkout" onClick={async () => {
+                  await handleCheckout(selectedPet?.id);
+                }} />
               </div>
             </div>
             <div className="flex justify-around py-10 px-5 text-center">
@@ -35,7 +37,6 @@ export default function PetDetails() {
               {selectedPet?.notes}
             </section>
           </>
-
       }
     </section>
   )
