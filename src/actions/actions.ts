@@ -1,15 +1,18 @@
 "use server";
 import prisma from "@/lib/db";
+import { PetEssentials } from "@/lib/types";
 import { sleep } from "@/lib/utils";
+import { Pet } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
-export async function addPet(pet) {
-  await sleep(2000);
+export async function addPet(pet: PetEssentials) {
+  await sleep(1000);
   try {
     await prisma.pet.create({
       data: pet
     })
   } catch (error) {
+    console.error(error);
     return {
       message: "Failed to add pet",
     }
@@ -17,8 +20,8 @@ export async function addPet(pet) {
   revalidatePath("/app", 'layout');
 }
 
-export async function editPet(petId, newPet) {
-  await sleep(2000);
+export async function editPet(petId: Pet['id'], newPet: PetEssentials) {
+  await sleep(1000);
   try {
     await prisma.pet.update({
       where: {
@@ -27,6 +30,7 @@ export async function editPet(petId, newPet) {
       data: newPet
     })
   } catch (error) {
+    console.error(error);
     return {
       message: "Failed to edit pet",
     }
@@ -34,8 +38,8 @@ export async function editPet(petId, newPet) {
   revalidatePath("/app", 'layout');
 } 
 
-export async function deletePet(petId) {
-  await sleep(2000);
+export async function deletePet(petId: Pet['id']) {
+  await sleep(1000);
   try {
     await prisma.pet.delete({
       where: {
@@ -43,6 +47,7 @@ export async function deletePet(petId) {
       }
     })
   } catch (error) {
+    console.error(error);
     return {
       message: "Failed to delete pet",
     }
