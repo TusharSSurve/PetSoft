@@ -5,12 +5,36 @@ import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import PetFormBtn from "./PetFormBtn";
 import { useForm } from "react-hook-form";
-import { PetEssentials } from "@/lib/types";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { DEFAULT_PET_IMAGE } from "@/lib/constants";
 
 type PetFormProps = {
   type: "edit" | "add";
   onFormSubmission: () => void;
 }
+
+const petFormSchema = z
+  .object({
+    name: z.string().trim().min(1, { message: "Name is required" }).max(100),
+    ownerName: z
+      .string()
+      .trim()
+      .min(1, { message: "Owner name is required" })
+      .max(100),
+    imageUrl: z.union([
+      z.literal(""),
+      z.string().trim().url({ message: "Image url must be a valid url" }),
+    ]),
+    age: z.coerce.number().int().positive().max(99999),
+    notes: z.union([z.literal(""), z.string().trim().max(1000)]),
+  })
+  .transform((data) => ({
+    ...data,
+    imageUrl: data.imageUrl || DEFAULT_PET_IMAGE,
+  }));
+
+type TPetForm = z.infer<typeof petFormSchema>;
 
 export default function PetForm({ type, onFormSubmission }: PetFormProps) {
   const { selectedPet, handleAddPet, handleEditPet } = usePetContext();
@@ -18,60 +42,40 @@ export default function PetForm({ type, onFormSubmission }: PetFormProps) {
   const {
     register,
     trigger,
+    getValues,
     formState: { errors },
-  } = useForm<PetEssentials>();
+  } = useForm<TPetForm>({
+    resolver: zodResolver(petFormSchema),
+  });
 
   return (
-    <form action={async (formData) => {
+    <form action={async () => {
       const result = await trigger();
-      if(!result) return;
-      const petData = {
-        name: formData.get("name") as string,
-        ownerName: formData.get("ownerName") as string,
-        imageUrl: (formData.get("imageUrl") as string) || "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png",
-        age: Number(formData.get("age")) ,
-        notes: formData.get("notes") as string
-      }
+      if (!result) return;
+      const petData = getValues();
+      petData.imageUrl = petData.imageUrl || DEFAULT_PET_IMAGE;
       onFormSubmission();
       if (type === "edit") {
         await handleEditPet(selectedPet!.id, petData);
       } else if (type === "add") {
         await handleAddPet(petData);
       }
-      
+
     }} className="flex flex-col">
       <div className="space-y-3">
         <div className="space-y-1">
           <Label htmlFor="name">Name</Label>
-          <Input id="name" {...register('name', {
-            required: "Name is required",
-            minLength: {
-              value: 3,
-              message: "Name should be at least 3 characters long"
-            }
-          })} required />
+          <Input id="name" {...register('name')} required />
           {errors.name && <p className="text-red-500">{errors.name.message}</p>}
         </div>
         <div className="space-y-1">
           <Label htmlFor="ownerName">Owner Name</Label>
-          <Input id="ownerName" {...register('ownerName', {
-            required: "Owner Name is required",
-            maxLength: {
-              value: 20,
-              message: "Owner Name should be at most 20 characters long"
-            }
-          })} />
+          <Input id="ownerName" {...register('ownerName')} />
           {errors.ownerName && <p className="text-red-500">{errors.ownerName.message}</p>}
         </div>
         <div className="space-y-1">
           <Label htmlFor="imageURL">Image URL</Label>
-          <Input id="imageURL" {...register('imageUrl',{
-            required: "Image URL is required",
-            pattern: {
-              value: /^https?:\/\/.+\.(png|jpe?g|gif)$/i,
-              message: "Please enter a valid image URL"
-            }
-          })} />
+          <Input id="imageURL" {...register('imageUrl')} />
           {errors.imageUrl && <p className="text-red-500">{errors.imageUrl.message}</p>}
         </div>
         <div className="space-y-1">
