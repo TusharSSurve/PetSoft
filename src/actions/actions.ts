@@ -1,4 +1,5 @@
 "use server";
+import { signIn } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { sleep } from "@/lib/utils";
 import { petFormSchema, petIdSchema } from "@/lib/validations";
@@ -73,4 +74,12 @@ export async function deletePet(petId: unknown) {
     }
   }
   revalidatePath("/app", 'layout');
+}
+
+export async function logIn(authData: FormData) {
+  const data = {
+    email: authData.get('email'),
+    password: authData.get('password')
+  }
+  await signIn('credentials', data)
 }
