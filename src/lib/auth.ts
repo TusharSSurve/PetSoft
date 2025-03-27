@@ -52,13 +52,14 @@ const config = {
       return false;
     },
     jwt: ({ token, user }) => {
-      if(user) {
+      if (user) {
         token.userId = user.id;
       }
       return token;
     },
-    session: ({ session, token}) => {
-      session.user.id = token.userId;
+    session: ({ session, token }) => {
+      if (session.user)
+        session.user.id = token.userId;
       return session;
     }
   },
