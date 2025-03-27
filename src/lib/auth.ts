@@ -39,17 +39,30 @@ const config = {
       console.log(isTryingToAccess);
       if (!isLoggedIn && isTryingToAccess) {
         return false;
-      } 
+      }
       if (isLoggedIn && isTryingToAccess) {
         return true;
       }
-
-      if(!isTryingToAccess) {
-        return true
+      if (isLoggedIn && !isTryingToAccess) {
+        return Response.redirect(new URL('/app/dashboard', request.nextUrl));
       }
+      if (!isLoggedIn && !isTryingToAccess) {
+        return true;
+      }
+      return false;
+    },
+    jwt: ({ token, user }) => {
+      if(user) {
+        token.userId = user.id;
+      }
+      return token;
+    },
+    session: ({ session, token}) => {
+      session.user.id = token.userId;
+      return session;
     }
   },
   secret: process.env.SECRET,
 } satisfies NextAuthConfig;
 
-export const { auth, signIn } = NextAuth(config);
+export const { auth, signIn, signOut } = NextAuth(config);

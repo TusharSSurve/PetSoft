@@ -1,8 +1,9 @@
 "use server";
-import { signIn } from "@/lib/auth";
+import { signIn, signOut } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { sleep } from "@/lib/utils";
 import { petFormSchema, petIdSchema } from "@/lib/validations";
+import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 
 export async function addPet(pet: unknown) {
@@ -77,9 +78,20 @@ export async function deletePet(petId: unknown) {
 }
 
 export async function logIn(authData: FormData) {
-  const data = {
-    email: authData.get('email'),
-    password: authData.get('password')
-  }
-  await signIn('credentials', data)
+  await signIn('credentials', authData)
+}
+
+export async function logOut() {
+  await signOut({ redirectTo: '/' });
+}
+
+export async function signUp(authData: FormData) {
+  const hashedPassword = await bcrypt.hash(authData.get('password') as string, 10)
+  await prisma.user.create({
+    data: {
+      email: authData.get('email') as string,
+      hashedPassword: hashedPassword
+    }
+  })
+  await signIn('credentials', authData)
 }
